@@ -171,6 +171,7 @@ function Base.getproperty(obj::Vector{Outputs{TF1,TF2}}, sym::Symbol) where {TF1
 end
 
 function Base.getproperty(obj::Array{Outputs{TF1,TF2}, N}, sym::Symbol) where {TF1, TF2, N}
+    println(sym)
     return getfield.(obj, sym)
 end
 
