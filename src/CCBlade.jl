@@ -166,11 +166,11 @@ end
 Outputs() = Outputs(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
 # convenience function to access fields within an array of structs
-function Base.getproperty(obj::Vector{Outputs{TF1,TF2}}, sym::Symbol) where TF
+function Base.getproperty(obj::Vector{Outputs{TF1,TF2}}, sym::Symbol) where {TF1, TF2}
     return getfield.(obj, sym)
 end
 
-function Base.getproperty(obj::Array{Outputs{TF1,TF2}, N}, sym::Symbol) where {TF, N}
+function Base.getproperty(obj::Array{Outputs{TF1,TF2}, N}, sym::Symbol) where {TF1, TF2, N}
     return getfield.(obj, sym)
 end
 
@@ -860,7 +860,7 @@ including 0 loads at hub/tip, using a trapezoidal rule.
 - `Q::Float64`: torque (along x-dir see Documentation).
 """
 # function thrusttorque(rotor, sections, outputs)
-function thrusttorque(rotor, sections, outputs::Vector{Outputs{TF1,TF2}}) where TF
+function thrusttorque(rotor, sections, outputs::Vector{Outputs{TF1,TF2}}) where {TF1, TF2}
 
     # add hub/tip for complete integration.  loads go to zero at hub/tip.
     rfull = [rotor.Rhub; sections.r; rotor.Rtip]
@@ -885,7 +885,7 @@ Integrate the thrust/torque across the blade given an array of output data.
 Generally used for azimuthal averaging of thrust/torque.
 `outputs[i, j]` corresponds to `sections[i], azimuth[j]`.  Integrates across azimuth
 """
-function thrusttorque(rotor, sections, outputs::Matrix{Outputs{TF1,TF2}}) where TF
+function thrusttorque(rotor, sections, outputs::Matrix{Outputs{TF1,TF2}}) where {TF1, TF2}
 
     T = 0.0
     Q = 0.0
