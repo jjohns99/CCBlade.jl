@@ -142,23 +142,23 @@ Outputs from the BEM solver along the radius.
 - `F::Vector{Float64}`: hub/tip loss correction
 - `G::Vector{Float64}`: effective hub/tip loss correction for induced velocities: `u = Vx * a * G, v = Vy * ap * G`
 """
-struct Outputs{TF}
+struct Outputs{TF1, TF2}
 
-    Np::TF
-    Tp::TF
-    a::TF
-    ap::TF
-    u::TF
-    v::TF
-    phi::TF
-    alpha::TF
-    W::TF
-    cl::TF
-    cd::TF
-    cn::TF
-    ct::TF
-    F::TF
-    G::TF
+    Np::TF1
+    Tp::TF1
+    a::TF2
+    ap::TF2
+    u::TF1
+    v::TF1
+    phi::TF2
+    alpha::TF2
+    W::TF1
+    cl::TF2
+    cd::TF2
+    cn::TF2
+    ct::TF2
+    F::TF2
+    G::TF2
 
 end
 
