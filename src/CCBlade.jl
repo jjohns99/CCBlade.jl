@@ -142,23 +142,55 @@ Outputs from the BEM solver along the radius.
 - `F::Vector{Float64}`: hub/tip loss correction
 - `G::Vector{Float64}`: effective hub/tip loss correction for induced velocities: `u = Vx * a * G, v = Vy * ap * G`
 """
-struct Outputs{TF1, TF2}
+# struct Outputs{TF1, TF2}
 
-    Np::TF1
-    Tp::TF1
-    a::TF2
-    ap::TF2
-    u::TF1
-    v::TF1
-    phi::TF2
-    alpha::TF2
-    W::TF1
-    cl::TF2
-    cd::TF2
-    cn::TF2
-    ct::TF2
-    F::TF2
-    G::TF2
+#     Np::TF1
+#     Tp::TF1
+#     a::TF2
+#     ap::TF2
+#     u::TF1
+#     v::TF1
+#     phi::TF2
+#     alpha::TF2
+#     W::TF1
+#     cl::TF2
+#     cd::TF2
+#     cn::TF2
+#     ct::TF2
+#     F::TF2
+#     G::TF2
+
+# end
+
+# # convenience constructor to initialize
+# Outputs() = Outputs(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+
+# # convenience function to access fields within an array of structs
+# function Base.getproperty(obj::Vector{Outputs{TF1,TF2}}, sym::Symbol) where {TF1, TF2}
+#     return getfield.(obj, sym)
+# end
+
+# function Base.getproperty(obj::Array{Outputs{TF1,TF2}, N}, sym::Symbol) where {TF1, TF2, N}
+#     return getfield.(obj, sym)
+# end
+
+struct Outputs
+
+    Np
+    Tp
+    a
+    ap
+    u
+    v
+    phi
+    alpha
+    W
+    cl
+    cd
+    cn
+    ct
+    F
+    G
 
 end
 
@@ -166,12 +198,11 @@ end
 Outputs() = Outputs(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
 
 # convenience function to access fields within an array of structs
-function Base.getproperty(obj::Vector{Outputs{TF1,TF2}}, sym::Symbol) where {TF1, TF2}
+function Base.getproperty(obj::Vector{Outputs}, sym::Symbol)
     return getfield.(obj, sym)
 end
 
-function Base.getproperty(obj::Array{Outputs{TF1,TF2}, N}, sym::Symbol) where {TF1, TF2, N}
-    println(sym)
+function Base.getproperty(obj::Array{Outputs, N}, sym::Symbol) where N
     return getfield.(obj, sym)
 end
 
@@ -860,8 +891,49 @@ including 0 loads at hub/tip, using a trapezoidal rule.
 - `T::Float64`: thrust (along x-dir see Documentation).
 - `Q::Float64`: torque (along x-dir see Documentation).
 """
+# # function thrusttorque(rotor, sections, outputs)
+# function thrusttorque(rotor, sections, outputs::Vector{Outputs{TF1,TF2}}) where {TF1, TF2}
+
+#     # add hub/tip for complete integration.  loads go to zero at hub/tip.
+#     rfull = [rotor.Rhub; sections.r; rotor.Rtip]
+#     Npfull = [0.0; outputs.Np; 0.0]
+#     Tpfull = [0.0; outputs.Tp; 0.0]
+
+#     # integrate Thrust and Torque (trapezoidal)
+#     thrust = Npfull*cos(rotor.precone)
+#     torque = Tpfull.*rfull*cos(rotor.precone)
+
+#     T = rotor.B * FLOWMath.trapz(rfull, thrust)
+#     Q = rotor.B * FLOWMath.trapz(rfull, torque)
+
+#     return T, Q
+# end
+
+
+# """
+#     thrusttorque(rotor, sections, outputs::Array{Outputs{TF}, 2}) where TF
+
+# Integrate the thrust/torque across the blade given an array of output data.
+# Generally used for azimuthal averaging of thrust/torque.
+# `outputs[i, j]` corresponds to `sections[i], azimuth[j]`.  Integrates across azimuth
+# """
+# function thrusttorque(rotor, sections, outputs::Matrix{Outputs{TF1,TF2}}) where {TF1, TF2}
+
+#     T = 0.0
+#     Q = 0.0
+#     nr, naz = size(outputs)
+
+#     for j = 1:naz
+#         Tsub, Qsub = thrusttorque(rotor, sections, outputs[:, j])
+#         T += Tsub / naz
+#         Q += Qsub / naz
+#     end
+
+#     return T, Q
+# end
+
 # function thrusttorque(rotor, sections, outputs)
-function thrusttorque(rotor, sections, outputs::Vector{Outputs{TF1,TF2}}) where {TF1, TF2}
+function thrusttorque(rotor, sections, outputs::Vector{Outputs})
 
     # add hub/tip for complete integration.  loads go to zero at hub/tip.
     rfull = [rotor.Rhub; sections.r; rotor.Rtip]
@@ -886,7 +958,7 @@ Integrate the thrust/torque across the blade given an array of output data.
 Generally used for azimuthal averaging of thrust/torque.
 `outputs[i, j]` corresponds to `sections[i], azimuth[j]`.  Integrates across azimuth
 """
-function thrusttorque(rotor, sections, outputs::Matrix{Outputs{TF1,TF2}}) where {TF1, TF2}
+function thrusttorque(rotor, sections, outputs::Matrix{Outputs})
 
     T = 0.0
     Q = 0.0
@@ -900,7 +972,6 @@ function thrusttorque(rotor, sections, outputs::Matrix{Outputs{TF1,TF2}}) where 
 
     return T, Q
 end
-
 
 
 """
